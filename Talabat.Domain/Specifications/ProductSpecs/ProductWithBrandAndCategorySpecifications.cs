@@ -16,9 +16,27 @@ namespace Talabat.Core.Specifications.ProductSpecs
         }
 
         // GET ALL
-        public ProductWithBrandAndCategorySpecifications()
+        public ProductWithBrandAndCategorySpecifications(string? sort) : base()
         {
             AddIncludes();
+
+            if (!string.IsNullOrEmpty(sort))
+            {
+                switch (sort)
+                {
+                    case "priceAsc": 
+                        OrderBy = (p => p.Price); 
+                        break;
+                    case "priceDesc":
+                        OrderByDesc = (p => p.Price);
+                        break;
+                    default:
+                        OrderBy = (p => p.Name);
+                        break;
+                }
+            }
+
+            else OrderBy = (p => p.Name);
         }
 
         private void AddIncludes()
