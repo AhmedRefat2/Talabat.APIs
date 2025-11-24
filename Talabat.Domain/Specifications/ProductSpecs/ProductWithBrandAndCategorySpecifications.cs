@@ -16,7 +16,11 @@ namespace Talabat.Core.Specifications.ProductSpecs
         }
 
         // GET ALL
-        public ProductWithBrandAndCategorySpecifications(string? sort) : base()
+        public ProductWithBrandAndCategorySpecifications(string? sort, int? brandId, int? categoryId)
+            : base( p => 
+                (!brandId.HasValue || p.BrandId == brandId.Value) && 
+                (!categoryId.HasValue || p.CategoryId == categoryId.Value)
+            )
         {
             AddIncludes();
 
