@@ -1,21 +1,61 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Talabat.Repository.Data;
+
 namespace Talabat.APIs
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            #region Configure Services - Register Services At DI Container 
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            builder.Services.AddDbContext<StoreContext>(storeContextOptions =>
+            {
+                storeContextOptions.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+            });
+
+            #endregion
+
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            #region Update Database  & Data Seeding 
+
+            // 1. Create Scope & Dispose It 
+            using var scope = app.Services.CreateScope();
+
+            // 2. Get the Service Provider from the Scope
+            var services = scope.ServiceProvider;
+
+            // 3. Get the DbContext from the Service Provider
+            var _dbContext = services.GetRequiredService<StoreContext>();
+
+            // 4. Get Looger 
+
+            var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+            // 4. Apply Migrations and Update the Database
+            try
+            {
+                await _dbContext.Database.MigrateAsync(); // Apply Migrations  - Update Database
+                await StoreContextSeed.SeedAsync(_dbContext);
+            }
+            catch (Exception ex)
+            {
+                var logger = loggerFactory.CreateLogger<Program>();
+                logger.LogError(ex, "An error occurred during apply the migration");
+            }
+
+            #endregion
+
+            #region Configure kesteral - Http Pipline - middlewares
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -29,7 +69,9 @@ namespace Talabat.APIs
 
             app.MapControllers();
 
-            app.Run();
+            #endregion
+
+            app.Run(); 
         }
     }
 }
