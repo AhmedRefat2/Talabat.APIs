@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Talabat.APIs.Helpers;
 using Talabat.Core.Entities.Product;
 using Talabat.Core.Repositories.Contract;
 using Talabat.Core.Specifications;
@@ -20,13 +21,20 @@ namespace Talabat.APIs.Controllers
 
         // GET: api/Products [GET All Products]
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecsParams specParams)
+        public async Task<ActionResult<Pagination<Product>>> GetProducts([FromQuery] ProductSpecsParams specParams)
         {
             var specs = new ProductWithBrandAndCategorySpecifications(specParams);
 
             var products = await _productRepo.GetAllWithSpecsAsync(specs);
 
-            return Ok(products);
+            var countSpecs = new ProductsWithFilterationForCountSpecification(specParams);
+
+            var productsCountWithoutPagination = await _productRepo.GetCountAysnc(countSpecs);
+
+            var productsPaginationResponse = new Pagination<Product>(
+                specParams.PageIndex, specParams.PageSize, productsCountWithoutPagination, products);
+
+            return Ok(productsPaginationResponse);
         }
 
         // GET: api/Products/5 [GET Product By Id]
