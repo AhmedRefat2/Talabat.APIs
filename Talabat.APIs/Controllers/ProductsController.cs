@@ -4,6 +4,7 @@ using Talabat.Core.Entities.Product;
 using Talabat.Core.Repositories.Contract;
 using Talabat.Core.Specifications;
 using Talabat.Core.Specifications.ProductSpecs;
+using Talabat.Domain.Specifications.ProductSpecs;
 
 namespace Talabat.APIs.Controllers
 {
@@ -19,9 +20,9 @@ namespace Talabat.APIs.Controllers
 
         // GET: api/Products [GET All Products]
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts(string? sort, int? brandId, int? categoryId)
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecsParams specParams)
         {
-            var specs = new ProductWithBrandAndCategorySpecifications(sort, brandId, categoryId);
+            var specs = new ProductWithBrandAndCategorySpecifications(specParams);
 
             var products = await _productRepo.GetAllWithSpecsAsync(specs);
 
