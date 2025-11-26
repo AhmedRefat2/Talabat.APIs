@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Talabat.Core.Entities.Product;
+using Talabat.Domain.Specifications.ProductSpecs;
 
 namespace Talabat.Core.Specifications.ProductSpecs
 {
@@ -16,17 +17,19 @@ namespace Talabat.Core.Specifications.ProductSpecs
         }
 
         // GET ALL
-        public ProductWithBrandAndCategorySpecifications(string? sort, int? brandId, int? categoryId)
-            : base( p => 
-                (!brandId.HasValue || p.BrandId == brandId.Value) && 
-                (!categoryId.HasValue || p.CategoryId == categoryId.Value)
+        public ProductWithBrandAndCategorySpecifications(ProductSpecsParams specParams)
+            : base( p =>
+                specParams != null &&
+                (string.IsNullOrEmpty(specParams.Search) || p.Name.ToLower().Contains(specParams.Search)) &&
+                (!specParams.BrandId.HasValue || p.BrandId == specParams.BrandId.Value) && 
+                (!specParams.CategoryId.HasValue || p.CategoryId == specParams.CategoryId.Value)
             )
         {
             AddIncludes();
 
-            if (!string.IsNullOrEmpty(sort))
+            if (!string.IsNullOrEmpty(specParams.Sort))
             {
-                switch (sort)
+                switch (specParams.Sort)
                 {
                     case "priceAsc": 
                         OrderBy = (p => p.Price); 
@@ -41,6 +44,8 @@ namespace Talabat.Core.Specifications.ProductSpecs
             }
 
             else OrderBy = (p => p.Name);
+
+            ApplyPagination((specParams.PageIndex - 1) * specParams.PageSize, specParams.PageSize);
         }
 
         private void AddIncludes()

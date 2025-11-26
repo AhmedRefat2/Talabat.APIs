@@ -43,7 +43,10 @@ namespace Talabat.Infrastructure.GenericRepository
 
 
         #endregion
-
+        public async Task<int> GetCountAysnc(ISpecifications<T> specs)
+        {
+           return await ApplySpecifications(specs).CountAsync();
+        }
 
         //public void Add(T entity)
         //{
