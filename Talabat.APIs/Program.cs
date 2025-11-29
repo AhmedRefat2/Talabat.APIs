@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Talabat.APIs.Errors;
 using Talabat.APIs.Helpers;
+using Talabat.APIs.Middlewares;
 using Talabat.Core.Repositories.Contract;
 using Talabat.Infrastructure.GenericRepository;
 using Talabat.Repository.Data;
@@ -86,6 +87,8 @@ namespace Talabat.APIs
 
             #region Configure kesteral - Http Pipline - middlewares
 
+            app.UseMiddleware<ExceptionMiddleware>();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -93,6 +96,8 @@ namespace Talabat.APIs
 
                 //app.UseDeveloperExceptionPage(); // by default called automaticlyy .Net 6 + 
             }
+
+            app.UseStatusCodePagesWithReExecute("/Errors/{0}");
 
             app.UseHttpsRedirection();
 

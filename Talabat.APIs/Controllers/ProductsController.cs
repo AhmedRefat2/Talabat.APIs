@@ -53,6 +53,8 @@ namespace Talabat.APIs.Controllers
 
         // GET: api/Products/5 [GET Product By Id]
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(ProductToReturnDto), 200)]
+        [ProducesResponseType(typeof(ApiResponse), 404)]
         public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id)
         {
 
