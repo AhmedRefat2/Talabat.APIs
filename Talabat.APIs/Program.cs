@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Talabat.Apis.Extensions;
 using Talabat.APIs.Errors;
+using Talabat.APIs.Extensions;
 using Talabat.APIs.Helpers;
 using Talabat.APIs.Middlewares;
 using Talabat.Core.Repositories.Contract;
@@ -19,39 +21,18 @@ namespace Talabat.APIs
             #region Configure Services - Register Services At DI Container 
 
             builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            builder.Services.AddSwaggerServices();
 
             builder.Services.AddDbContext<StoreContext>(storeContextOptions =>
             {
                 storeContextOptions.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
-
-            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-
-            builder.Services.AddAutoMapper(typeof(MappingProfiles));
-
-            builder.Services.Configure<ApiBehaviorOptions>(options =>
-            {
-                // Customize the response for invalid model state
-                options.InvalidModelStateResponseFactory = (actionContext) =>
-                {
-                    var errors = actionContext.ModelState.Where(P => P.Value!.Errors.Count > 0)
-                                    .SelectMany(P => P.Value!.Errors)
-                                    .Select(E => E.ErrorMessage)
-                                    .ToArray();
-
-                    var response = new ApiValidationErrorResponse()
-                    {
-                        Errors = errors
-                    };
-
-                    return new BadRequestObjectResult(response);
-                };
-            });
+                
+            builder.Services.AddApplicationServices();
 
             #endregion
-            
+
 
 
             var app = builder.Build();
@@ -91,8 +72,7 @@ namespace Talabat.APIs
 
             if (app.Environment.IsDevelopment())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerMiddleware();
 
                 //app.UseDeveloperExceptionPage(); // by default called automaticlyy .Net 6 + 
             }
