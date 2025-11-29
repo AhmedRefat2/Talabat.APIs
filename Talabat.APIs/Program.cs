@@ -90,6 +90,8 @@ namespace Talabat.APIs
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+
+                //app.UseDeveloperExceptionPage(); // by default called automaticlyy .Net 6 + 
             }
 
             app.UseHttpsRedirection();
