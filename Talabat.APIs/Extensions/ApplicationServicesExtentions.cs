@@ -6,6 +6,8 @@ using Talabat.APIs.Errors;
 using Talabat.APIs.Helpers;
 using Talabat.Core;
 using Talabat.Core.Repositories.Contract;
+using Talabat.Domain.Repositories.Contract;
+using Talabat.Infrastructure.BasketRepository;
 using Talabat.Infrastructure.GenericRepository;
 using Talabat.Repository;
 using Talabat.Repository.GenericRepository;
@@ -37,6 +39,8 @@ namespace Talabat.Apis.Extensions
                     return new BadRequestObjectResult(response);
                 };
             });
+
+            services.AddScoped<IBasketRepository, BasketRepository>();
 
             return services;
         }
